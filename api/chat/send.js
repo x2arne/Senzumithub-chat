@@ -1,4 +1,4 @@
-// POST /api/chat/send  body: { username, displayName, userId, message, room, replyToId, ownerSecret }
+// POST /api/chat/send  body: { username, displayName, userId, message, room, replyToId, keyTier }
 const { redis, verifyToken, bearer, tierOf, isBanned, clean, validRoom, json, parseBody, MAX_BYTES, KEEP, RETURN_LAST } = require("../_lib");
 
 module.exports = async (req, res) => {
@@ -42,7 +42,7 @@ module.exports = async (req, res) => {
       displayName: clean(b.displayName, 32) || username,
       userId,
       message,
-      tier: tierOf(userId, b.ownerSecret),
+      tier: tierOf(userId, b.keyTier),
       replyTo,
       ts: Math.floor(Date.now() / 1000),
     };

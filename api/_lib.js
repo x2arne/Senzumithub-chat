@@ -52,17 +52,17 @@ function bearer(req) {
 function idSet(name) {
   return new Set((process.env[name] || "").split(",").map((s) => s.trim()).filter(Boolean));
 }
-// Owner hanya lewat OWNER_SECRET (userId mudah dipalsukan dari client).
-// Reseller/Premium dari daftar ID = kosmetik saja.
-function tierOf(userId, ownerSecret) {
-  const os = process.env.OWNER_SECRET;
-  if (os && typeof ownerSecret === "string") {
-    const a = Buffer.from(ownerSecret), b = Buffer.from(os);
-    if (a.length === b.length && crypto.timingSafeEqual(a, b)) return "Owner";
-  }
+// Aturan tier:
+//   Owner    -> userId ada di OWNER_IDS
+//   Reseller -> userId ada di RESELLER_IDS
+//   Premium  -> client kirim keyTier "premium" (dari LRM_KeyTier / key)
+//   Free     -> selain itu (keyless / tanpa key)
+// Catatan: userId & keyTier datang dari client, jadi bisa dipalsukan (kosmetik, bukan keamanan).
+function tierOf(userId, keyTier) {
   const id = String(userId);
+  if (idSet("OWNER_IDS").has(id)) return "Owner";
   if (idSet("RESELLER_IDS").has(id)) return "Reseller";
-  if (idSet("PREMIUM_IDS").has(id)) return "Premium";
+  if (String(keyTier || "").toLowerCase() === "premium") return "Premium";
   return "Free";
 }
 function isBanned(userId) { return idSet("BANNED_IDS").has(String(userId)); }

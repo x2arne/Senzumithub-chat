@@ -8,8 +8,7 @@ Backend chat untuk `Items:AddChat` di Project-senzu.
    (otomatis mengisi `KV_REST_API_URL` & `KV_REST_API_TOKEN`).
 3. Settings -> Environment Variables:
    - `CHAT_SECRET`   = string acak panjang (wajib, buat tanda tangan token)
-   - `OWNER_SECRET`  = rahasia khusus kamu (opsional, buat badge Owner)
-   - `RESELLER_IDS`, `PREMIUM_IDS`, `BANNED_IDS` = daftar Roblox UserId dipisah koma (opsional)
+   - `OWNER_IDS`, `RESELLER_IDS`, `BANNED_IDS` = daftar Roblox UserId dipisah koma (opsional)
 4. Redeploy. Tes: `https://NAMA.vercel.app/api/chat/session` (POST) harus balas `{token, expiresAt}`.
 
 ## Endpoint
@@ -18,6 +17,7 @@ Backend chat untuk `Items:AddChat` di Project-senzu.
 - `POST /api/chat/send`               -> `{ message }`    (header sama)
 
 ## Catatan keamanan
-- UserId dari executor bisa dipalsukan. Badge **Owner** hanya lewat `OWNER_SECRET`;
-  Premium/Reseller dari daftar ID itu kosmetik saja.
+- Tier: Owner = UserId di `OWNER_IDS`, Reseller = UserId di `RESELLER_IDS`,
+  Premium = key premium (`LRM_KeyTier`), Free = keyless / tanpa key.
+- UserId & keyTier dikirim client, jadi bisa dipalsukan: badge cuma kosmetik, bukan keamanan.
 - Batas: 280 byte/pesan, 1 pesan per 2 detik per user, 30 sesi/menit per IP.
